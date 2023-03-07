@@ -4,6 +4,9 @@ This is ML course 2023 final project : "Novel view synthesis with neural radianc
 Based on article [Mildenhall et al. 2021](https://arxiv.org/pdf/2003.08934.pdf) NeRF: Representing Scenes as
 Neural Radiance Fields for View Synthesis. We perform...
 
+
+[Data link](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) 
+
 **Proposal:**
 
 Reproduce paper results for synthetic and real problems, run COLMAP and 
