@@ -20,10 +20,13 @@ You can download Instant NGP [here](https://github.com/NVlabs/instant-ngp/blob/m
 
 ## This repository is...
 
+In this project, we aimed to replicate and extend the Neural Radiance Field (NeRF) algorithm for novel view synthesis, which has recently achieved impressive photorealistic image synthesis results.
 
+We studied the methodology of the technology, trained and evaluated NeRF on synthetic and real datasets, and compared the performance of NeRF trained with known and estimated camerato-world matrices and intrinsic parameters.
 
+Additionally, we explored a method based on hash ideas like Instant-NGP, which aim to improve the training and inference time of NeRF.
 
-We used the provided GitHub (https://github.com/colmap/colmap) repository to access the NeRF algorithm's implementation. 
+We used the provided [GitHub repository](https://github.com/colmap/colmap) repository to access the NeRF algorithm's implementation. 
 We executed the code on two datasets: the synthetic 360 Lego dataset and the real forward facing LLFF Fern dataset. Both provided by folowing [link](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1). We replicated [Berkeley’s paper](https://arxiv.org/pdf/2003.08934.pdf) results. 
 
 In this project we implement COLMAP [link to github](https://github.com/colmap/colmap) and nerf-pytorch [link to github](https://github.com/yenchenlin/nerf-pytorch)
