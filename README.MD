@@ -2,7 +2,7 @@
 
 This is ML course 2023 final project : "Novel view synthesis with neural radiance fields" or simply NeRF
 
-## :computer: Installation
+## Installation
 
 All the tests were performed using Google Colab GPU's Tesla P100.
 
