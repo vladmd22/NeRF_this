@@ -2,21 +2,6 @@
 
 This is ML course 2023 final project : "Novel view synthesis with neural radiance fields" or simply NeRF
 
-We used the provided GitHub (https://github.com/colmap/colmap) repository to access the NeRF algorithm's implementation. 
-We executed the code on two datasets: the synthetic 360 Lego dataset and the real forward facing LLFF Fern dataset. Both provided by folowing [link](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1). We replicated [Berkeley’s paper](https://arxiv.org/pdf/2003.08934.pdf) results. 
-
-In this project we implement COLMAP [link to github](https://github.com/colmap/colmap) and nerf-pytorch [link to github](https://github.com/yenchenlin/nerf-pytorch)
-
-First of all we derivee and explained the formula for casting rays (provided in the report). Then trained NeRF model  on downloaded synthetic Lego dataset and real LLFF Fern dataset. As the result obtained mean PSNR and SSIM metrics on train and test images, mean reconstruction time per 1 image and training curves. 
-
-
-
-Conclusion: Nerf has a mean reconstruction time of more than 8 hours per objects (11+ in the training phase). Several artifacts appears.
-
-
-You can download Instant NGP [here](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md)
-
-
 ## :computer: Installation
 
 All the tests were performed using Google Colab GPU's Tesla P100.
@@ -30,48 +15,25 @@ The requred packages can be installed from ``requirements.txt``:
 Or by creating custom environment nerf-this by simply running:
 
         conda create env
+        
+You can download Instant NGP [here](https://github.com/NVlabs/instant-ngp/blob/master/docs/nerf_dataset_tips.md)
 
-![](fern.gif)
+## This repository is...
 
-![](lego.gif)
+![](fern.gif)  ![](lego.gif)
 
+We used the provided GitHub (https://github.com/colmap/colmap) repository to access the NeRF algorithm's implementation. 
+We executed the code on two datasets: the synthetic 360 Lego dataset and the real forward facing LLFF Fern dataset. Both provided by folowing [link](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1). We replicated [Berkeley’s paper](https://arxiv.org/pdf/2003.08934.pdf) results. 
 
-**Proposal:**
+In this project we implement COLMAP [link to github](https://github.com/colmap/colmap) and nerf-pytorch [link to github](https://github.com/yenchenlin/nerf-pytorch)
 
-Reproduce paper results for synthetic and real problems, run COLMAP and 
-compare results, understand theory and derive formula for ray-casting.
-Reproduce some results of NeRF algorithm for the problem of novel view 
-synthesis. We’ll compare synthetic (both train and test images have exact 
-camera-to-world matrices and intrinsic parameters like focal strength and principal 
-point coordinates) and real problems (only images of the scene are available and 
-we have to extract estimation of camera-to-world matrices and intrinsic 
-parameters by COLMAP framework, which implements Structure-from-Motion and 
-Multi-View Stereo methods).
+First of all we derivee and explained the formula for casting rays (provided in the report). Then trained NeRF model  on downloaded synthetic Lego dataset and real LLFF Fern dataset. As the result obtained mean PSNR and SSIM metrics on train and test images, mean reconstruction time per 1 image and training curves. 
 
 
+## Conclusions: 
 
+Nerf has a mean reconstruction time of more than 8 hours per objects (11+ in the training phase). Several artifacts appears. In conclusion, while the NeRF algorithm produces high-quality images with realistic lighting and textures, its performance heavily relies on the accuracy of camera poses and intrinsic parameters, and it has limitations in handling large-scale scenes and requiring substantial training data. Providing additional data through the use of COLMAP can improve the accuracy of pose estimation, which is crucial for NeRF. Meanwhile, Instant-NGP offers a faster alternative with a small loss of quality.
 
-
-As u can see on example there is some artifacts on the picture.
-
-(ВСТАВИТЬ КАРТИНКУ)
-
-Extract train and test camera-to-world matrices and intrinsic parameters by
-COLMAP framework. It is possible that COLMAP will not converge, so try to
-change the parameters or restart it. Retrain NeRF on the COLMAP poses and
-compare results with the case when poses are known. Is the difference between
-these two setups significant in terms of PSNR and SSIM metrics?
-
-| Time for ach alg | Lego | Fern |
-| --- | --- | --- |
-| NeRF (Training time) | 10.66h | 12.5h |
-| NeRFC (Training time) | 9h | 11.5h |
-| NeRF (Time per image) | 1.5004245221614838 | 2.631760017077128 |
-| NeRFC (Time per image) | 1.4980448603630065 | 2.626609440644582 |
-
-The code presented here was highly inspired by LINKS TO GIT HUB REPOSITORIES
-
-## Description
 
 ## Team
 
@@ -80,5 +42,3 @@ The code presented here was highly inspired by LINKS TO GIT HUB REPOSITORIES
 + Maryush Soroka
 + Vladislav Mityukov
 + Yunseok Park
-
-## Obtained results
