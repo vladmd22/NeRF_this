@@ -52,9 +52,18 @@ def main():
             os.path.join(cfg.dataset.cachedir, "val", "*.data")
         )
         print('USING CACHED DATASET')
+        datafiles = []
+        for datafile in tqdm(train_paths):
+            datafiles.append(torch.load(datafile))
+        val_files  = []
+
+        for datafile in validation_paths:
+            val_files.append(torch.load(datafile))
+        print('DONE')
         USE_CACHED_DATASET = True
     else:
         # Load dataset
+        print('USING RAW DATASET')
         images, poses, render_poses, hwf = None, None, None, None
         if cfg.dataset.type.lower() == "blender":
             images, poses, render_poses, hwf, i_split = load_blender_data(
@@ -62,6 +71,7 @@ def main():
                 half_res=cfg.dataset.half_res,
                 testskip=cfg.dataset.testskip,
             )
+            print('LOADED BLENDER DATA')
             i_train, i_val, i_test = i_split
             H, W, focal = hwf
             H, W = int(H), int(W)
@@ -93,6 +103,9 @@ def main():
             poses = torch.from_numpy(poses)
 
     # Seed experiment for repeatability
+
+    print('DATASET LOADED')
+
     seed = cfg.experiment.randomseed
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -100,8 +113,10 @@ def main():
     # Device on which to run.
     if torch.cuda.is_available():
         device = "cuda"
+        print('USING CUDA')
     else:
         device = "cpu"
+        print('USING CPU')
 
     encode_position_fn = get_embedding_function(
         num_encoding_functions=cfg.models.coarse.num_encoding_fn_xyz,
@@ -177,8 +192,9 @@ def main():
         rgb_coarse, rgb_fine = None, None
         target_ray_values = None
         if USE_CACHED_DATASET:
-            datafile = np.random.choice(train_paths)
-            cache_dict = torch.load(datafile)
+            # datafile = np.random.choice(train_paths)
+            # cache_dict = torch.load(datafile)
+            cache_dict = np.random.choice(datafiles)
             ray_bundle = cache_dict["ray_bundle"].to(device)
             ray_origins_full, ray_directions_full = (
                 ray_bundle[0].reshape((-1, 3)),
@@ -226,7 +242,6 @@ def main():
             select_inds = coords[select_inds]
             ray_origins = ray_origins[select_inds[:, 0], select_inds[:, 1], :]
             ray_directions = ray_directions[select_inds[:, 0], select_inds[:, 1], :]
-            # batch_rays = torch.stack([ray_origins, ray_directions], dim=0)
             target_s = img_target[select_inds[:, 0], select_inds[:, 1], :]
 
             then = time.time()
@@ -253,19 +268,12 @@ def main():
             fine_loss = torch.nn.functional.mse_loss(
                 rgb_fine[..., :3], target_ray_values[..., :3]
             )
-        # loss = torch.nn.functional.mse_loss(rgb_pred[..., :3], target_s[..., :3])
+
         loss = 0.0
-        # if fine_loss is not None:
-        #     loss = fine_loss
-        # else:
-        #     loss = coarse_loss
         loss = coarse_loss + (fine_loss if fine_loss is not None else 0.0)
         loss.backward()
         psnr = mse2psnr(loss.item())
 
-        # TODO: add train SSIM 
-        # ssim = ssim_calc(rgb_fine.permute(1,0).reshape(1, -1, 9, 9),
-        #                  target_ray_values.permute(1,0).reshape(1, -1, 9, 9), w_size=5).item()
 
         if rgb_fine.shape[0] > 300*300:
             to_ssim = rgb_fine[:300*300]
@@ -279,7 +287,7 @@ def main():
             w_size = min(11, size)
 
         ssim = ssim_calc(to_ssim.view(1, size, size, -1).permute(0, 3, 1, 2),
-                         to_ssim_target.view(1, size, size, -1).permute(0, 3, 1, 2), w_size=w_size).item()
+                         to_ssim_target[..., :3].view(1, size, size, -1).permute(0, 3, 1, 2), w_size=w_size).item()
 
         optimizer.step()
         optimizer.zero_grad()
@@ -326,8 +334,8 @@ def main():
                 target_ray_values = None
 
                 if USE_CACHED_DATASET:
-                    datafile = np.random.choice(validation_paths)
-                    cache_dict = torch.load(datafile)
+                    cache_dict = np.random.choice(val_files)
+                    # cache_dict = torch.load(datafile)
                     tic = time.perf_counter()
                     rgb_coarse, _, _, rgb_fine, _, _ = run_one_iter_of_nerf(
                         cache_dict["height"],
@@ -351,7 +359,7 @@ def main():
                     ray_origins, ray_directions = get_ray_bundle(
                         H, W, focal, pose_target
                     )
-                    toc = time.perf_counter()
+                    tic = time.perf_counter()
                     rgb_coarse, _, _, rgb_fine, _, _ = run_one_iter_of_nerf(
                         H,
                         W,
@@ -365,7 +373,7 @@ def main():
                         encode_position_fn=encode_position_fn,
                         encode_direction_fn=encode_direction_fn,
                     )
-                    tic = time.perf_counter()
+                    toc = time.perf_counter()
                     target_ray_values = img_target
                 
                 coarse_loss = img2mse(rgb_coarse[..., :3], target_ray_values[..., :3])
@@ -379,8 +387,8 @@ def main():
                 
                 loss = coarse_loss + fine_loss
                 psnr = mse2psnr(loss.item())
-
-                ssim = ssim_calc(rgb_fine.permute(2, 0, 1), target_ray_values.permute(2, 0, 1)).item()
+                # print(rgb_fine[None, ...].permute(0, 3, 1, 2).shape, target_ray_values[None, ...,].permute(0, 3, 1, 2).shape)
+                ssim = ssim_calc(rgb_fine[None, ..., :3].permute(0, 3, 1, 2), target_ray_values[None, ..., :3].permute(0, 3, 1, 2)).item()
 
                 writer.add_scalar("validation/loss", loss.item(), i)
                 writer.add_scalar("validation/coarse_loss", coarse_loss.item(), i)
@@ -406,8 +414,8 @@ def main():
                     + str(loss.item())
                     + " Validation PSNR: "
                     + str(psnr)
-                    + "Validation SSIM"
-                    + "TODO"
+                    + " Validation SSIM "
+                    + str(ssim)
                     + " Time: "
                     # + str(time.time() - start)
                     + str(toc - tic)

@@ -1,4 +1,4 @@
-name: nerf
+name: nerf_this
 channels:
   - pytorch
   - conda-forge

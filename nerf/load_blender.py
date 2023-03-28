@@ -44,6 +44,7 @@ def load_blender_data(basedir, half_res=False, testskip=1, debug=False):
         with open(os.path.join(basedir, f"transforms_{s}.json"), "r") as fp:
             metas[s] = json.load(fp)
 
+
     all_imgs = []
     all_poses = []
     counts = [0]
@@ -60,6 +61,8 @@ def load_blender_data(basedir, half_res=False, testskip=1, debug=False):
             fname = os.path.join(basedir, frame["file_path"] + ".png")
             imgs.append(imageio.imread(fname))
             poses.append(np.array(frame["transform_matrix"]))
+
+
         imgs = (np.array(imgs) / 255.0).astype(np.float32)
         poses = np.array(poses).astype(np.float32)
         counts.append(counts[-1] + imgs.shape[0])

@@ -3,8 +3,6 @@ from typing import Optional
 
 import torch
 
-import torchsearchsorted
-
 from typing import Tuple
 
 

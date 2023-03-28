@@ -133,3 +133,12 @@ dmypy.json
 cache/
 data/
 logs/
+
+# vscode
+.vscode
+
+# flake8
+.flake8
+
+# toml
+.toml
